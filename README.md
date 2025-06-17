@@ -5,3 +5,4 @@ Buscamos informar de una manera didactica sobre los sucesos ocurridos durante la
 ## Para ver la aplicación estática simplemente debe:
 * _Clonar este repositorio._
 * _Abrir el archivo "index.html" en algún navegador._
+![Islas Malvinas con una bandera argentina pintada en el territorio](https://c0.klipartz.com/pngpicture/277/78/gratis-png-port-luis-islas-malvinas-stanley-bandera-de-las-islas-malvinas-mapa-mapa.png)
