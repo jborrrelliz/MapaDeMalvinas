@@ -1,0 +1,661 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Mapa interactivo de las Islas Malvinas con función de búsqueda" />
+    <title>Mapa de las Malvinas</title>
+    <script src='https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.js'></script>
+    <link href='https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.css' rel='stylesheet' />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+      html, body {
+        margin: 0;
+        padding: 0;
+        height: 100%;
+        width: 100%;
+        overflow: hidden;
+      }
+      #map {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        width: 100%;
+        height: 100vh;
+      }
+      /* Estilos para el foco visible */
+      .focus-visible:focus {
+        outline: 2px solid #3b82f6;
+        outline-offset: 2px;
+      }
+      /* Estilos para lectores de pantalla */
+      .sr-only {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        padding: 0;
+        margin: -1px;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+        white-space: nowrap;
+        border: 0;
+      }
+      /* Estilos para el modal */
+      .modal {
+        /* display: none;
+        position: fixed;
+        inset:0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        z-index: 1000; */
+        display: none;
+        position: fixed;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        z-index: 1000;
+        justify-content: center;
+        align-items: center;
+      }
+      .modal.active {
+        display: flex;
+        /* align-items: center;
+        justify-content: center; */
+      }
+      .modal-content {
+        /* position: relative;
+        background-color: white;
+        margin: 15% auto;
+        padding: 2rem;
+        width: 80%;
+        max-width: 600px;
+        border-radius: 0.5rem;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); */
+        position: relative;
+        background-color: white;
+        padding: 2rem;
+        width: 80%;
+        max-width: 600px;
+        border-radius: 0.5rem;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        max-height: 90vh;
+        overflow-y: auto;
+      }
+      /* Estilos para el marcador personalizado */
+      .custom-marker {
+        width: 30px;
+        height: 30px;
+        background-color: #ef4444;
+        clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+        transform: translateY(-50%);
+        cursor: pointer;
+        transition: transform 0.2s;
+      }
+      .custom-marker:hover {
+        transform: translateY(-50%) scale(1.1);
+      }
+      .custom-marker::after {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 12px;
+        height: 12px;
+        background-color: white;
+        border-radius: 50%;
+        border: 2px solid #ef4444;
+      }
+      .custom-marker.ciudad {
+        background-color: #3b82f6;
+      }
+      .custom-marker.monumento {
+        background-color: #ef4444;
+      }
+      .custom-marker.historico {
+        background-color: #22c55e;
+      }
+      .custom-marker.busqueda {
+        background-color: #a855f7;
+      }
+      .mapboxgl-popup-content {
+        padding: 1rem;
+        border-radius: 0.5rem;
+      }
+      .mapboxgl-popup-close-button {
+        padding: 0.5rem;
+        font-size: 1.25rem;
+      }
+      .control-buttons {
+        position: fixed;
+        bottom: 40px;
+        right: 20px;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        z-index: 1000;
+      }
+      .control-button {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background-color: white;
+        border: none;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: transform 0.2s;
+      }
+      .control-button:hover {
+        transform: scale(1.1);
+      }
+      .control-button svg {
+        width: 20px;
+        height: 20px;
+        fill: #4B5563;
+      }
+      .bandera-celeste, .bandera-blanca {
+        width: 100%;
+        height: 10px; /* o ajustá a la altura deseada */
+      }
+
+      .bandera-celeste {
+        background-color: #74acdf; /* azul celeste */
+      }
+
+      .bandera-blanca {
+        background-color: white;
+      }
+
+    </style>
+  </head>
+  <body class="relative h-screen">
+    <!-- Header accesible -->
+    <header class="absolute top-4 left-4 z-10" role="banner">
+      <form role="search" aria-label="Buscar en el mapa">
+        <label for="search" class="sr-only">
+          Buscar ubicación en las Malvinas
+        </label>
+        <div class="relative">
+          <input
+            id="search"
+            name="search"
+            type="text"
+            placeholder="Buscar ubicación..."
+            class="w-64 px-4 py-2 border border-gray-300 rounded-md shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 bg-white bg-opacity-90"
+            aria-label="Buscar ubicación en el mapa"
+            aria-describedby="search-description"
+          />
+          <button
+            type="submit"
+            class="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded-full p-1"
+            aria-label="Buscar"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              class="h-5 w-5"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              aria-hidden="true"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+              />
+            </svg>
+          </button>
+        </div>
+        <span id="search-description" class="sr-only">
+          Ingresa el nombre de una ubicación en las Islas Malvinas
+        </span>
+      </form>
+    </header>
+
+    <!-- Contenedor del mapa con rol y label -->
+    <main>
+      <div
+        id="map"
+        role="region"
+        aria-label="Mapa de las Islas Malvinas"
+        tabindex="0"
+      ></div>
+    </main>
+
+    <!-- Botones de control -->
+    <div class="control-buttons">
+      <button onclick="abrirModalAccesibilidad()" class="control-button" aria-label="Configuración de accesibilidad">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+          <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-1-13h2v6h-2zm0 8h2v2h-2z"/>
+        </svg>
+      </button>
+      <button onclick="abrirModalConfiguracion()" class="control-button" aria-label="Configuración general">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+          <path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.07.62-.07.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/>
+        </svg>
+      </button>
+    </div>
+
+    <!-- Modal -->
+    <div id="modal" class="modal" role="dialog" aria-labelledby="modalTitle" aria-describedby="modalDescription">
+      <div class="modal-content">
+        <button onclick="cerrarModal()" class="absolute top-2 right-2 text-gray-500 hover:text-gray-700" aria-label="Cerrar modal">✕</button>
+        <h2 id="modalTitle" class="text-2xl mb-4"></h2> 
+        <h4 id="modalFecha" class="text-lg text-gray-600 mb-2"></h4>
+        <img id="modalImage" class="w-full h-48 object-cover rounded-lg mb-4" alt="">
+        <p id="modalDescription" class="text-gray-700"></p>
+        <div class="bandera-celeste">
+        </div>
+        <div class="bandera-blanca">
+        </div>
+        <div class="bandera-celeste">
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal de accesibilidad -->
+    <div id="modalAccesibilidad" class="modal" role="dialog" aria-labelledby="modalAccesibilidadTitle">
+      <div class="modal-content">
+        <button onclick="cerrarModalAccesibilidad()" class="absolute top-2 right-2 text-gray-500 hover:text-gray-700" aria-label="Cerrar modal">✕</button>
+        <h2 id="modalAccesibilidadTitle" class="text-2xl font-bold mb-4">Configuración de Accesibilidad</h2>
+        <div class="space-y-4">
+          <div>
+            <label class="flex items-center space-x-2">
+              <input type="checkbox" class="form-checkbox" onchange="toggleAltoContraste(this)">
+              <span>Alto contraste</span>
+            </label>
+          </div>
+          <div>
+            <label class="flex items-center space-x-2">
+              <input type="checkbox" class="form-checkbox" onchange="toggleLectorPantalla(this)">
+              <span>Modo lector de pantalla</span>
+            </label>
+          </div>
+          <div>
+            <label class="flex items-center space-x-2">
+              <input type="range" min="12" max="24" value="16" class="w-full" onchange="cambiarTamañoTexto(this.value)">
+              <span>Tamaño del texto</span>
+            </label>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal de configuración -->
+    <div id="modalConfiguracion" class="modal" role="dialog" aria-labelledby="modalConfiguracionTitle">
+      <div class="modal-content">
+        <button onclick="cerrarModalConfiguracion()" class="absolute top-2 right-2 text-gray-500 hover:text-gray-700" aria-label="Cerrar modal">✕</button>
+        <h2 id="modalConfiguracionTitle" class="text-2xl font-bold mb-4">Configuración</h2>
+        <div class="space-y-4">
+          <div>
+            <label class="block mb-2">Estilo del mapa</label>
+            <select class="w-full p-2 border rounded" onchange="cambiarEstiloMapa(this.value)">
+              <option value="mapbox://styles/mapbox/streets-v12">Calles</option>
+              <option value="mapbox://styles/mapbox/satellite-v9">Satélite</option>
+              <option value="mapbox://styles/mapbox/outdoors-v12">Exterior</option>
+            </select>
+          </div>
+          <div>
+            <label class="block mb-2">Idioma</label>
+            <select class="w-full p-2 border rounded" onchange="cambiarIdioma(this.value)">
+              <option value="es">Español</option>
+              <option value="en">English</option>
+            </select>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // Token de Mapbox
+      mapboxgl.accessToken = 'pk.eyJ1IjoiZmFjdW5kb2FndWVsIiwiYSI6ImNtYndqOXV3NTExNTcya3B1OHBxd2FjcjUifQ.syGb5zzs6GkNHSBJEZ3shw';
+
+      // Datos de los puntos de interés
+      const puntosInteres = [
+        {
+          nombre: "Puerto Argentino",
+          lugar: "Stanley",
+          fecha: "1982-04-02",
+          coordenadas: [-57.8517, -51.6907],
+          descripcion: "Capital de las Islas Malvinas. Aquí ocurrió la Operación Rosario, que fue fue la recuperación de las Islas Malvinas por parte de la República Argentina el 2 de abril de 1982.",
+          tipo: "ciudad",
+          imagen: "./public/puerto-argentino.jpg",
+          altImagen: "Infantes de marina argentinos después de la toma."
+        },
+        {
+          nombre: "Operación Georgias",
+          lugar: "Islas Georgias del Sur",
+          fecha: "1982-04-03",
+          coordenadas: [-36.55,-54.433333],
+          descripcion: "La Operación Georgias, también conocida como la batalla de Grytviken fue un enfrentamiento por el cual las fuerzas argentinas tomaron los asentamientos y bases británicas en las Islas Georgias del Sur.",
+          tipo: "historico",
+          imagen: "./public/operacion-georgias.jpeg",
+          altImagen: "Buque polar HMS Endurance en Mar del Plata en febrero de 1982, poco antes de su intervención en las Georgias."
+        },
+        {
+          nombre:"Sitio de Puerto Argentino",
+          lugar:"Isla Soledad",
+          fecha: "1982-05-01 - 1982-06-11",
+          coordenadas: [-58.787222,-51.806111],
+          descripcion: "Período de la Guerra de las Malvinas previo a la batalla final. El 1 de mayo por la mañana se produjo el ataque de un bombardero Vulcan B.2 del 101 Squadron de la RAF, que atacó la pista del aeropuerto de Stanley con una ristra de 21 bombas de 1000 lb. Por entonces, el COATLANSUR creía equivocadamente que se avecinaba un desembarco británico a gran escala, hecho que nunca se materializó. Luego del primer bombardeo, la aviación inglesa llevó a cabo sendos ataques aéreos contra las bases aéreas de Stanley y Goose Green.",
+          tipo: "histórico",
+          imagen:"./public/sitio-puerto-argentino.jpg",
+          altImagen: "Los bombarderos británicos Vulcan atacaban desde el aeródromo de la isla Ascensión. Imagen de un Vulcan B.2 del 101 Squadron de la RAF."
+        },
+        {
+          nombre: "Batalla de Monte Longdon",
+          lugar: "Monte Longdon",
+          fecha: "1982-06-11 - 1982-06-12",
+          coordenadas: [-57.8833, -51.6167],
+          descripcion: "Ubicación de una de las batallas más importantes del conflicto, por combates cuerpo a cuerpo con bayoneta —poco usual en la guerra moderna— y por su punto estratégico, debido a que se trataba de una posición clave en torno a la guarnición argentina asentada en Puerto Argentino.",
+          tipo: "historico",
+          imagen: "./public/monte-longdon.jpg",
+          altImagen: "Soldados argentinos en Monte Longdon."
+        },
+        {
+          nombre: "Batalla de San Carlos",
+          lugar: "Bahía San Carlos",
+          fecha: "1982-05-21 - 1982-05-27",
+          coordenadas: [-59.0833, -51.5667],
+          descripcion: "Fue el primer enfrentamiento terrestre de la Guerra de las Malvinas. Comenzó con el desembarco británico el 21 de mayo de 1982 —Operación Sutton—. Con la excepción de una breve resistencia de una sección de infantería, la resistencia argentina provino de la aviación con base en el continente. La flota británica sufrió graves pérdidas (Cómo el Hundimiento de la Fragata tipo 21 HMS Ardent con 22 muertos y 30 heridos o el Hundimiento del Destructor tipo 42 HMS Coventry Coventry D-118 con 19 muertos) pero estableció la cabeza de playa.",
+          tipo: "histórico",
+          imagen: "./public/bahia-san-carlos.jpg",
+          altImagen: "Desembarco británico en Bahía San Carlos."
+        },
+        {
+          nombre: "Hundimiento ARA General Belgrano",
+          lugar: "Paso Drake",
+          fecha: "1982-05-02",
+          coordenadas: [-61.533,-55.4],
+          descripcion: "El hundimiento del ARA General Belgrano fue una acción bélica naval que se produjo fuera del área de exclusión de guerra pactada durante la guerra de las Malvinas, a consecuencia del ataque del submarino nuclear británico HMS Conqueror. El hundimiento del crucero argentino permitió a los británicos la superioridad naval en la zona. El ataque causó la muerte de 323 argentinos —prácticamente la mitad de las bajas de ese país en todo el conflicto—. El hecho generó una polémica en ambos países, al haberse producido fuera del área de exclusión establecida por el Gobierno británico alrededor de las islas. Es el único caso de un barco hundido en guerra por un submarino nuclear.",
+          tipo: "histórico",
+          imagen: "./public/ara-gral-belgrano.jpg",
+          altImagen: "Hundimiento del ARA General Belgrano."
+        },
+        {
+          nombre: "Ataque a la isla Borbón",
+          lugar: "Aeródromo de Puerto Calderón",
+          fecha: "1982-05-14 - 1982-05-15",
+          coordenadas: [-59.610278,-51.308889],
+          descripcion: "El ataque a la Isla Borbón fue una ofensiva británica a las posiciones argentinas en la Isla Borbón. Inmediatamente después de que las fuerzas argentinas se apoderaron de las islas Malvinas, la Armada Argentina estableció una pequeña base aérea en el Aeródromo Auxiliar Calderón. Durante la noche del 14 de mayo dos helicópteros del 846 Naval Air Squadron, parte de Commando Helicopter Force, salieron con cuarenta y cinco miembros del Escuadrón D a bordo. Encargaron a la tropa de montaña la destrucción de los aviones argentinos, mientras que el personal restante actuaba como fuerza de protección, asegurando la aproximación a la pista de aterrizaje, y formando una reserva operacional.",
+          tipo: "histórico",
+          imagen: "./public/puerto-borbon.jpg",
+          altImagen: "Avión de las fuerzas Argentinas detruido."
+        },
+        {
+          nombre: "Operación Keyhole",
+          lugar: "Islas Sandwich del Sur",
+          fecha: "1982-06-20",
+          coordenadas: [-27.3,-59.45],
+          descripcion: "La Invasión Británica en las Islas Sandwich del Sur fue la última acción bélica en el marco de la Guerra de Malvinas. Antes del mediodía del 20 de junio, se inició el ataque sobre la roca Twitcher, al mismo tiempo que se emitió un mensaje a la base argentina intimando a la rendición. También en la ladera sur del monte Larsen, se estacionó un helicóptero con un grupo spotter para iniciar el fuego artillero. A las 12:20 el Teniente Peralta Martínez rindió su guarnición. Tras la invasión británica de ese territorio pacíficamente ocupado, 10 argentinos fueron interrogados y hechos prisioneros (un civil y 9 militares) y fueron evacuados por el buque petrolero Olmeda, acompañado por el Yarmouth hacia Puerto Leith en las islas Georgias del Sur.",
+          tipo: "histórico",
+          imagen: "./public/op-keyhole.jpg",
+          altImagen: "Estación Cientifica Corbeta Uruguay en la Isla Morrell, Islas Sandwich del Sur."
+        }
+      ];
+
+      // Inicializar el mapa
+      const map = new mapboxgl.Map({
+        container: 'map',
+        style: 'mapbox://styles/mapbox/streets-v12',
+        center: [-57.8517, -54.6907],
+        zoom: 4
+      });
+
+      // Agregar controles de navegación
+      map.addControl(new mapboxgl.NavigationControl());
+
+      // Elementos del modal
+      const modal = document.getElementById('modal');
+      const modalTitle = document.getElementById('modalTitle');
+      const modalFecha = document.getElementById('modalFecha');
+      const modalDescription = document.getElementById('modalDescription');
+      const modalImage = document.getElementById('modalImage');
+      const closeModal = document.getElementById('close-modal');
+
+      // Función para crear marcadores personalizados
+      function createCustomMarker() {
+        const el = document.createElement('div');
+        el.className = 'custom-marker';
+        el.style.width = '30px';
+        el.style.height = '30px';
+        el.style.backgroundImage = 'url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 24 24\' fill=\'%23ef4444\'%3E%3Cpath d=\'M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z\'/%3E%3C/svg%3E")';
+        el.style.backgroundSize = 'contain';
+        el.style.backgroundRepeat = 'no-repeat';
+        el.style.cursor = 'pointer';
+        return el;
+      }
+
+      // Función para abrir el modal
+      function abrirModal(nombre, lugar, fecha, descripcion, imagen, altImagen) {
+        modalTitle.innerHTML = `<p><b>${nombre}</b> - <span class="text-gray-600">${lugar}</span></p>`;
+        modalFecha.textContent = fecha ? `Fecha: ${fecha}` : 'Fecha no disponible';
+        modalDescription.textContent = descripcion;
+        modalImage.src = imagen;
+        modalImage.alt = altImagen;
+        modal.style.display = 'flex';
+        document.body.style.overflow = 'hidden';
+      }
+
+      // Función para cerrar el modal
+      function cerrarModal() {
+        modal.style.display = 'none';
+        document.body.style.overflow = 'auto';
+      }
+
+      // Agregar puntos al mapa
+      function agregarPuntos() {
+        console.log('Agregando puntos al mapa...');
+        console.log('Número de puntos a agregar:', puntosInteres.length);
+
+        puntosInteres.forEach((punto, index) => {
+          console.log(`Creando marcador ${index + 1} para:`, punto.nombre);
+          console.log('Coordenadas:', punto.coordenadas);
+          
+          const el = createCustomMarker();
+          
+          try {
+            const marker = new mapboxgl.Marker({
+              color: '#ef4444',
+              scale: 0.8
+            })
+              .setLngLat(punto.coordenadas)
+              .setPopup(
+                new mapboxgl.Popup({ offset: 25 })
+                  .setHTML(`
+                    <h3 class="font-bold text-lg mb-2">${punto.nombre}</h3>
+                    <button 
+                      onclick="abrirModal('${punto.nombre}','${punto.lugar}','${punto.fecha}','${punto.descripcion}', '${punto.imagen}','${punto.altImagen}')"
+                      class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-colors"
+                    >
+                      Ver más información
+                    </button>
+                  `)
+              );
+            
+            marker.addTo(map);
+            console.log('Marcador agregado exitosamente:', punto.nombre);
+          } catch (error) {
+            console.error('Error al crear el marcador:', error);
+          }
+        });
+      }
+
+      // Cerrar modal al hacer clic fuera
+      document.addEventListener('DOMContentLoaded', function() {
+        const modal = document.getElementById('modal');
+        if (modal) {
+          modal.addEventListener('click', function(event) {
+            if (event.target === modal) {
+              cerrarModal();
+            }
+          });
+        }
+      });
+
+      // Agregar puntos cuando el mapa esté listo
+      map.on('load', () => {
+        console.log('Mapa cargado, iniciando carga de puntos...');
+        console.log('Estado del mapa:', map.loaded());
+        agregarPuntos();
+      });
+
+      // Manejar la búsqueda
+      const searchForm = document.querySelector('form');
+      const searchInput = document.getElementById('search');
+      const mapContainer = document.getElementById('map');
+
+      // Función para anunciar cambios a lectores de pantalla
+      function announceToScreenReader(message) {
+        const announcement = document.createElement('div');
+        announcement.setAttribute('aria-live', 'polite');
+        announcement.setAttribute('aria-atomic', 'true');
+        announcement.setAttribute('class', 'sr-only');
+        announcement.textContent = message;
+        document.body.appendChild(announcement);
+        setTimeout(() => announcement.remove(), 1000);
+      }
+
+      searchForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const query = searchInput.value.trim();
+        
+        if (!query || query.length == 0) {
+          announceToScreenReader('Por favor, ingresa un lugar para buscar');
+          return;
+        }
+
+        // Busca en los nombres de los puntos de interés
+        const resultadoLocal = puntosInteres.find(p => 
+          p.nombre.toLowerCase().includes(query.toLowerCase()) || p.lugar.toLowerCase().includes(query.toLowerCase())
+        );
+
+        if (resultadoLocal) {
+          const [lng, lat] = resultadoLocal.coordenadas;
+          map.flyTo({
+            center: [lng, lat],
+            zoom: 14,
+            essential: true
+          });
+
+          announceToScreenReader(`Ubicación encontrada en el mapa: ${resultadoLocal.nombre}`);
+        } else {
+          announceToScreenReader('No se encontraron resultados para la búsqueda');
+        }
+        // Creo que mejor no buscamos por la api porque no nos interesan otros puntos mas que los que tenemos definidos
+        // try {
+        //   const response = await fetch(
+        //     `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(
+        //       query
+        //     )}.json?access_token=${mapboxgl.accessToken}&country=FK&types=place,locality,neighborhood,address`
+        //   );
+
+        //   const data = await response.json();
+        //   console.log('Datos de búsqueda recibidos:', data);
+
+        //   if (data.features && data.features.length > 0) {
+        //     const [lng, lat] = data.features[0].center;
+        //     const placeName = data.features[0].place_name;
+            
+        //     // Crear un marcador personalizado para la búsqueda
+        //     const el = createCustomMarker();
+        //     el.className = 'custom-marker busqueda';
+            
+        //     new mapboxgl.Marker(el)
+        //       .setLngLat([lng, lat])
+        //       .addTo(map);
+
+        //     // Animar el mapa hacia la ubicación
+        //     map.flyTo({
+        //       center: [lng, lat],
+        //       zoom: 12,
+        //       essential: true
+        //     });
+
+        //     announceToScreenReader(`Ubicación encontrada: ${placeName}`);
+        //   } else {
+        //     announceToScreenReader('No se encontraron resultados para la búsqueda');
+        //   }
+        // } catch (err) {
+        //   console.error('Error en la búsqueda:', err);
+        //   announceToScreenReader('Error al realizar la búsqueda');
+        // }
+      });
+
+      // Manejar el foco del teclado
+      mapContainer.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          mapContainer.focus();
+        }
+      });
+
+      // Funciones para el modal de accesibilidad
+      function abrirModalAccesibilidad() {
+        const modal = document.getElementById('modalAccesibilidad');
+        modal.style.display = 'flex';
+        document.body.style.overflow = 'hidden';
+      }
+
+      function cerrarModalAccesibilidad() {
+        const modal = document.getElementById('modalAccesibilidad');
+        modal.style.display = 'none';
+        document.body.style.overflow = 'auto';
+      }
+
+      // Funciones para el modal de configuración
+      function abrirModalConfiguracion() {
+        const modal = document.getElementById('modalConfiguracion');
+        modal.style.display = 'flex';
+        document.body.style.overflow = 'hidden';
+      }
+
+      function cerrarModalConfiguracion() {
+        const modal = document.getElementById('modalConfiguracion');
+        modal.style.display = 'none';
+        document.body.style.overflow = 'auto';
+      }
+
+      // Funciones de accesibilidad
+      function toggleAltoContraste(checkbox) {
+        document.body.classList.toggle('alto-contraste', checkbox.checked);
+      }
+
+      function toggleLectorPantalla(checkbox) {
+        // Implementar lógica del lector de pantalla
+        console.log('Modo lector de pantalla:', checkbox.checked);
+      }
+
+      function cambiarTamañoTexto(tamaño) {
+        document.body.style.fontSize = tamaño + 'px';
+      }
+
+      // Funciones de configuración
+      function cambiarEstiloMapa(estilo) {
+        map.setStyle(estilo);
+      }
+
+      function cambiarIdioma(idioma) {
+        // Implementar cambio de idioma
+        console.log('Cambiando idioma a:', idioma);
+      }
+
+      // Cerrar modales al hacer clic fuera
+      window.onclick = function(event) {
+        const modals = document.getElementsByClassName('modal');
+        for (let modal of modals) {
+          if (event.target === modal) {
+            modal.style.display = 'none';
+            document.body.style.overflow = 'auto';
+          }
+        }
+      }
+    </script>
+  </body>
+</html> 
