@@ -42,13 +42,6 @@
       }
       /* Estilos para el modal */
       .modal {
-        /* display: none;
-        position: fixed;
-        inset:0;
-        width: 100%;
-        height: 100%;
-        background-color: rgba(0, 0, 0, 0.5);
-        z-index: 1000; */
         display: none;
         position: fixed;
         inset: 0;
@@ -61,18 +54,8 @@
       }
       .modal.active {
         display: flex;
-        /* align-items: center;
-        justify-content: center; */
       }
       .modal-content {
-        /* position: relative;
-        background-color: white;
-        margin: 15% auto;
-        padding: 2rem;
-        width: 80%;
-        max-width: 600px;
-        border-radius: 0.5rem;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); */
         position: relative;
         background-color: white;
         padding: 2rem;
@@ -85,41 +68,51 @@
       }
       /* Estilos para el marcador personalizado */
       .custom-marker {
-        width: 30px;
-        height: 30px;
-        background-color: #ef4444;
-        clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
-        transform: translateY(-50%);
+        position: relative;
+        width: 20px;
+        height: 20px;
+        background-color: #ef4444; /* color base */
+        border-radius: 15px 15px 15px 15px ; /* forma ovalada */
         cursor: pointer;
-        transition: transform 0.2s;
+        transition: transform 0.01s;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.3);
       }
-      .custom-marker:hover {
-        transform: translateY(-50%) scale(1.1);
-      }
+
+      /* El pico usando un pseudo-elemento con clip-path para que tome el mismo color */
       .custom-marker::after {
         content: '';
         position: absolute;
-        top: 50%;
+        bottom: -12px;
         left: 50%;
-        transform: translate(-50%, -50%);
-        width: 12px;
-        height: 12px;
-        background-color: white;
-        border-radius: 50%;
-        border: 2px solid #ef4444;
+        transform: translateX(-50%);
+        width: 20px;
+        height: 20px;
+        background-color: inherit; /* toma el mismo color que el padre */
+        clip-path: polygon(50% 100%, 0 0, 100% 0); /* triángulo hacia abajo */
+        filter: drop-shadow(0 1px 1px rgba(0,0,0,0.2));
       }
+
+      .custom-marker:hover {
+        transform: scale(1.1);
+      }
+
+      /* Colores según tipo, aplican al fondo y al pico (porque ::after usa background-color: inherit) */
       .custom-marker.ciudad {
         background-color: #3b82f6;
       }
+
       .custom-marker.monumento {
-        background-color: #ef4444;
+        background-color: #281bad;
       }
+
       .custom-marker.historico {
-        background-color: #22c55e;
+        background-color: #ad1b2c;
       }
+
       .custom-marker.busqueda {
-        background-color: #a855f7;
+        background-color: #601bad;
       }
+
       .mapboxgl-popup-content {
         padding: 1rem;
         border-radius: 0.5rem;
@@ -344,7 +337,7 @@
           fecha: "1982-05-01 - 1982-06-11",
           coordenadas: [-58.787222,-51.806111],
           descripcion: "Período de la Guerra de las Malvinas previo a la batalla final. El 1 de mayo por la mañana se produjo el ataque de un bombardero Vulcan B.2 del 101 Squadron de la RAF, que atacó la pista del aeropuerto de Stanley con una ristra de 21 bombas de 1000 lb. Por entonces, el COATLANSUR creía equivocadamente que se avecinaba un desembarco británico a gran escala, hecho que nunca se materializó. Luego del primer bombardeo, la aviación inglesa llevó a cabo sendos ataques aéreos contra las bases aéreas de Stanley y Goose Green.",
-          tipo: "histórico",
+          tipo: "historico",
           imagen:"./public/sitio-puerto-argentino.jpg",
           altImagen: "Los bombarderos británicos Vulcan atacaban desde el aeródromo de la isla Ascensión. Imagen de un Vulcan B.2 del 101 Squadron de la RAF."
         },
@@ -364,7 +357,7 @@
           fecha: "1982-05-21 - 1982-05-27",
           coordenadas: [-59.0833, -51.5667],
           descripcion: "Fue el primer enfrentamiento terrestre de la Guerra de las Malvinas. Comenzó con el desembarco británico el 21 de mayo de 1982 —Operación Sutton—. Con la excepción de una breve resistencia de una sección de infantería, la resistencia argentina provino de la aviación con base en el continente. La flota británica sufrió graves pérdidas (Cómo el Hundimiento de la Fragata tipo 21 HMS Ardent con 22 muertos y 30 heridos o el Hundimiento del Destructor tipo 42 HMS Coventry Coventry D-118 con 19 muertos) pero estableció la cabeza de playa.",
-          tipo: "histórico",
+          tipo: "historico",
           imagen: "./public/bahia-san-carlos.jpg",
           altImagen: "Desembarco británico en Bahía San Carlos."
         },
@@ -374,7 +367,7 @@
           fecha: "1982-05-02",
           coordenadas: [-61.533,-55.4],
           descripcion: "El hundimiento del ARA General Belgrano fue una acción bélica naval que se produjo fuera del área de exclusión de guerra pactada durante la guerra de las Malvinas, a consecuencia del ataque del submarino nuclear británico HMS Conqueror. El hundimiento del crucero argentino permitió a los británicos la superioridad naval en la zona. El ataque causó la muerte de 323 argentinos —prácticamente la mitad de las bajas de ese país en todo el conflicto—. El hecho generó una polémica en ambos países, al haberse producido fuera del área de exclusión establecida por el Gobierno británico alrededor de las islas. Es el único caso de un barco hundido en guerra por un submarino nuclear.",
-          tipo: "histórico",
+          tipo: "historico",
           imagen: "./public/ara-gral-belgrano.jpg",
           altImagen: "Hundimiento del ARA General Belgrano."
         },
@@ -384,7 +377,7 @@
           fecha: "1982-05-14 - 1982-05-15",
           coordenadas: [-59.610278,-51.308889],
           descripcion: "El ataque a la Isla Borbón fue una ofensiva británica a las posiciones argentinas en la Isla Borbón. Inmediatamente después de que las fuerzas argentinas se apoderaron de las islas Malvinas, la Armada Argentina estableció una pequeña base aérea en el Aeródromo Auxiliar Calderón. Durante la noche del 14 de mayo dos helicópteros del 846 Naval Air Squadron, parte de Commando Helicopter Force, salieron con cuarenta y cinco miembros del Escuadrón D a bordo. Encargaron a la tropa de montaña la destrucción de los aviones argentinos, mientras que el personal restante actuaba como fuerza de protección, asegurando la aproximación a la pista de aterrizaje, y formando una reserva operacional.",
-          tipo: "histórico",
+          tipo: "historico",
           imagen: "./public/puerto-borbon.jpg",
           altImagen: "Avión de las fuerzas Argentinas detruido."
         },
@@ -394,7 +387,7 @@
           fecha: "1982-06-20",
           coordenadas: [-27.3,-59.45],
           descripcion: "La Invasión Británica en las Islas Sandwich del Sur fue la última acción bélica en el marco de la Guerra de Malvinas. Antes del mediodía del 20 de junio, se inició el ataque sobre la roca Twitcher, al mismo tiempo que se emitió un mensaje a la base argentina intimando a la rendición. También en la ladera sur del monte Larsen, se estacionó un helicóptero con un grupo spotter para iniciar el fuego artillero. A las 12:20 el Teniente Peralta Martínez rindió su guarnición. Tras la invasión británica de ese territorio pacíficamente ocupado, 10 argentinos fueron interrogados y hechos prisioneros (un civil y 9 militares) y fueron evacuados por el buque petrolero Olmeda, acompañado por el Yarmouth hacia Puerto Leith en las islas Georgias del Sur.",
-          tipo: "histórico",
+          tipo: "historico",
           imagen: "./public/op-keyhole.jpg",
           altImagen: "Estación Cientifica Corbeta Uruguay en la Isla Morrell, Islas Sandwich del Sur."
         }
@@ -422,13 +415,8 @@
       // Función para crear marcadores personalizados
       function createCustomMarker() {
         const el = document.createElement('div');
-        el.className = 'custom-marker';
-        el.style.width = '30px';
-        el.style.height = '30px';
-        el.style.backgroundImage = 'url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 24 24\' fill=\'%23ef4444\'%3E%3Cpath d=\'M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z\'/%3E%3C/svg%3E")';
-        el.style.backgroundSize = 'contain';
-        el.style.backgroundRepeat = 'no-repeat';
-        el.style.cursor = 'pointer';
+        el.className = 'custom-marker'; 
+        el.style.position = 'relative'; 
         return el;
       }
 
@@ -459,10 +447,11 @@
           console.log('Coordenadas:', punto.coordenadas);
           
           const el = createCustomMarker();
+          el.classList.add(punto.tipo);
           
           try {
             const marker = new mapboxgl.Marker({
-              color: '#ef4444',
+              element: el,
               scale: 0.8
             })
               .setLngLat(punto.coordenadas)
