@@ -8,20 +8,23 @@
         <script src="https://cdn.tailwindcss.com"></script>
         <link rel="stylesheet" href="style.css" />
     </head>
-    <body class="relative h-screen">
+    <body class="relative min-h-screen">
         <!-- Header accesible -->
         <header class="bg-blue-900 text-white py-6" role="banner">
-            <div class="max-w-4xl mx-auto px-4">
+            <div class="max-w-6xl mx-auto px-4 flex items-center gap-6">
+                <img src="./public/logo.png" alt="Logo Historias de Malvinas" class="h-16 w-auto" />
+                <div>
                 <h1 class="text-3xl font-bold" aria-label="Historias de Malvinas">
-                Historias de Malvinas
+                    Historias de Malvinas
                 </h1>
                 <p class="mt-2 text-lg" id="intro">
-                Un recorrido interactivo por los lugares y hechos más relevantes de la Guerra de Malvinas.
+                    Un recorrido interactivo por los lugares y hechos más relevantes de la Guerra de Malvinas.
                 </p>
+                </div>
             </div>
         </header>
 
-        <main class="max-w-4xl mx-auto px-4 py-10" role="main">
+        <main class="max-w-4xl mx-auto px-4 py-10 flex-grow" role="main">
             <section aria-labelledby="que-es">
                 <h2 class="text-2xl font-semibold mb-4" id="que-es">¿Qué es este proyecto?</h2>
                 <p class="mb-4">
