@@ -8,9 +8,9 @@
         <script src="https://cdn.tailwindcss.com"></script>
         <link rel="stylesheet" href="style.css" />
     </head>
-    <body class="relative min-h-screen">
+    <body class="h-screen flex flex-col">
         <!-- Header accesible -->
-        <header class="bg-blue-900 text-white py-6" role="banner">
+        <header class="bg-blue-900 text-white py-4" role="banner">
             <div class="max-w-6xl mx-auto px-4 flex items-center gap-6">
                 <img src="./public/logo.png" alt="Logo Historias de Malvinas" class="h-16 w-auto" />
                 <div>
@@ -24,41 +24,54 @@
             </div>
         </header>
 
-        <main class="max-w-4xl mx-auto px-4 py-10 flex-grow" role="main">
-            <section aria-labelledby="que-es">
-                <h2 class="text-2xl font-semibold mb-4" id="que-es">¿Qué es este proyecto?</h2>
-                <p class="mb-4">
-                Este portal busca preservar y difundir la memoria histórica de la Guerra de Malvinas
-                mediante un recorrido georreferenciado por los lugares significativos del conflicto.
-                Cada punto en el mapa representa un hecho, una historia o un testimonio que merece ser recordado.
-                </p>
-            </section>
+        <main class="overflow-y-auto flex-grow" role="main">
+            <div class="max-w-4xl mx-auto px-4 py-10">
+                <section aria-labelledby="que-es">
+                    <h2 class="text-2xl font-semibold mb-4" id="que-es">¿Qué es este proyecto?</h2>
+                    <p class="mb-4">
+                    Este portal busca preservar y difundir la memoria histórica de la Guerra de Malvinas
+                    mediante un recorrido georreferenciado por los lugares significativos del conflicto.
+                    Cada punto en el mapa representa un hecho, una historia o un testimonio que merece ser recordado.
+                    </p>
+                    <img src="./public/soldados-mate.avif" class="w-full object-cover rounded-lg mb-4" alt="Soldados argentinos tomando mate."/>
+                </section>
 
-            <section aria-labelledby="importancia">
-                <h2 class="text-2xl font-semibold mb-4 mt-8" id="importancia">¿Por qué es importante?</h2>
-                <p class="mb-4">
-                La memoria colectiva es fundamental para construir una sociedad consciente. Este proyecto
-                busca aportar una herramienta educativa e interactiva que permita a las nuevas generaciones
-                conocer los eventos que marcaron nuestra historia reciente.
-                </p>
-            </section>
+                <section aria-labelledby="importancia">
+                    <h2 class="text-2xl font-semibold mb-4 mt-8" id="importancia">¿Por qué es importante?</h2>
+                    <p class="mb-4">
+                    La memoria colectiva es fundamental para construir una sociedad consciente. Este proyecto
+                    busca aportar una herramienta educativa e interactiva que permita a las nuevas generaciones
+                    conocer los eventos que marcaron nuestra historia reciente.
+                    </p>
+                    <img src="./public/abuelas.jpg" class="w-full object-cover rounded-lg mb-4" alt="Abuelas en plaza de mayo con cartel que dice 'Las Malvinas son Argentinas, los desaparecidos también'" />
+                </section>
 
-            <section aria-labelledby="acceder-mapa">
-                <h2 class="text-2xl font-semibold mb-4 mt-8" id="acceder-mapa">Explorá el mapa interactivo</h2>
-                <p class="mb-6">
-                Accedé al recorrido interactivo y descubrí los puntos históricos marcados en el mapa:
-                </p>
-                <a
-                href="mapa.html"
-                class="inline-block bg-blue-600 text-white px-6 py-3 rounded-lg shadow hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2"
-                role="link"
-                >
-                Ir al mapa
-                </a>
-            </section>
+                <section aria-labelledby="acceder-mapa">
+                    <h2 class="text-2xl font-semibold mb-4 mt-8" id="acceder-mapa">Explorá el mapa interactivo</h2>
+                    <p class="mb-6">
+                    Accedé al recorrido interactivo y descubrí los puntos históricos marcados en el mapa:
+                    </p>
+                    <a
+                    href="mapa.html"
+                    class="inline-block bg-blue-600 text-white px-6 py-3 rounded-lg shadow hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2"
+                    role="link"
+                    >
+                    Ir al mapa
+                    </a>
+                </section>
+            </div>
         </main>
-        <footer class="bg-gray-100 text-gray-600 py-6 mt-12 text-center text-sm" role="contentinfo">
-            <p>&copy; 2025 Historias de Malvinas. Todos los derechos reservados.</p>
+        <footer class="bg-gray-100 text-gray-600 py-4 text-sm" role="contentinfo">
+            <div class="max-w-6xl mx-auto flex items-center justify-between gap-4 flex-wrap sm:flex-nowrap">
+                <!-- <div class="flex items-center gap-4"> -->
+                    <img src="./public/Unlp_logo.png" alt="Logo de la Universidad Nacional de La Plata" class="h-10 w-auto" />
+
+                <p class="text-center sm:text-left flex">
+                Diseño de experiencia de Usuario 2025 - Historias de Malvinas - Facundo Ariel Aguel, Juana Borrelli Zara
+                </p>
+                    <img src="./public/logo-info.png" alt="Logo de la Facultad de Informática" class="h-10 w-auto" />
+
+            </div>
         </footer>
     </body>
 </html>
