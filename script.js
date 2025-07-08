@@ -1,3 +1,4 @@
+
 // Token de Mapbox
     mapboxgl.accessToken = 'pk.eyJ1IjoiZmFjdW5kb2FndWVsIiwiYSI6ImNtYndqOXV3NTExNTcya3B1OHBxd2FjcjUifQ.syGb5zzs6GkNHSBJEZ3shw';
 
@@ -312,44 +313,6 @@
     } else {
         announceToScreenReader('No se encontraron resultados para la búsqueda');
     }
-    // Creo que mejor no buscamos por la api porque no nos interesan otros puntos mas que los que tenemos definidos
-    // try {
-    //   const response = await fetch(
-    //     `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(
-    //       query
-    //     )}.json?access_token=${mapboxgl.accessToken}&country=FK&types=place,locality,neighborhood,address`
-    //   );
-
-    //   const data = await response.json();
-    //   console.log('Datos de búsqueda recibidos:', data);
-
-    //   if (data.features && data.features.length > 0) {
-    //     const [lng, lat] = data.features[0].center;
-    //     const placeName = data.features[0].place_name;
-        
-    //     // Crear un marcador personalizado para la búsqueda
-    //     const el = createCustomMarker();
-    //     el.className = 'custom-marker busqueda';
-        
-    //     new mapboxgl.Marker(el)
-    //       .setLngLat([lng, lat])
-    //       .addTo(map);
-
-    //     // Animar el mapa hacia la ubicación
-    //     map.flyTo({
-    //       center: [lng, lat],
-    //       zoom: 12,
-    //       essential: true
-    //     });
-
-    //     announceToScreenReader(`Ubicación encontrada: ${placeName}`);
-    //   } else {
-    //     announceToScreenReader('No se encontraron resultados para la búsqueda');
-    //   }
-    // } catch (err) {
-    //   console.error('Error en la búsqueda:', err);
-    //   announceToScreenReader('Error al realizar la búsqueda');
-    // }
     });
 
     // Manejar el foco del teclado
@@ -419,4 +382,5 @@
         document.body.style.overflow = 'auto';
         }
     }
+    
 }

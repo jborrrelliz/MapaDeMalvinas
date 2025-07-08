@@ -165,6 +165,14 @@
         </div>
       </div>
     </div>
-    <script src="script.js"></script>
+    <script src="script.js">
+      function aplicarModoTemaDesdeStorage() {
+        const temaGuardado = localStorage.getItem('modo-tema');
+        const modoOscuro = temaGuardado === 'dark';
+        document.body.classList.toggle('dark-mode', modoOscuro);
+        document.body.classList.toggle('light-mode', !modoOscuro);
+      }
+      window.addEventListener('DOMContentLoaded', aplicarModoTemaDesdeStorage);
+    </script>
   </body>
 </html> 
