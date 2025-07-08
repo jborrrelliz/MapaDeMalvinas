@@ -12,17 +12,18 @@
   </head>
   <body class="relative h-screen">
     <!-- Header accesible -->
-    <header class="absolute top-4 left-4 z-10 flex items-center gap-4" role="banner">
+    <header class="map-header absolute top-4 left-4 z-10 flex items-center gap-4" role="banner">
       <!-- Botón para volver al home -->
-      <a href="index.html"
-        class="flex items-center gap-2 bg-white bg-opacity-90 border border-gray-300 text-gray-700 px-3 py-2 rounded-md shadow-sm hover:bg-gray-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
-        aria-label="Volver al inicio">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none"
-          viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-            d="M15 19l-7-7 7-7" />
-        </svg>
-      </a>
+       <button class="flex items-center gap-2 bg-white bg-opacity-90 border border-gray-300 text-gray-700 px-3 py-2 rounded-md shadow-sm hover:bg-gray-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500">
+        <a href="index.html"
+          aria-label="Volver al inicio">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none"
+            viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M15 19l-7-7 7-7" />
+          </svg>
+        </a>
+       </button>
 
       <!-- Formulario de búsqueda -->
       <form role="search" aria-label="Buscar en el mapa" class="flex items-center">
@@ -99,7 +100,6 @@
         <h4 id="modalFecha" class="text-lg text-gray-600 mb-2"></h4>
         <img id="modalImage" class="w-full h-48 object-cover rounded-lg mb-4" alt="">
         <p id="modalDescription" aria-label="Descripcion de la historia" class="text-gray-700 pb-3"  tabindex="0"></p>
-       
 
          <div class="absolute bottom-0 left-0 w-full">
          <div class="bandera-celeste">
@@ -165,7 +165,7 @@
         </div>
       </div>
     </div>
-    <script src="script.js">
+    <script>
       function aplicarModoTemaDesdeStorage() {
         const temaGuardado = localStorage.getItem('modo-tema');
         const modoOscuro = temaGuardado === 'dark';
@@ -174,5 +174,6 @@
       }
       window.addEventListener('DOMContentLoaded', aplicarModoTemaDesdeStorage);
     </script>
+    <script src="script.js"></script>
   </body>
 </html> 

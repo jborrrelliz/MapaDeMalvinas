@@ -143,6 +143,29 @@ html, body {
 .bandera-blanca {
     background-color: white;
 }
+
+.boton-accesibilidad {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background-color: #ffffff !important; /* siempre blanco */
+    color: #000000 !important;            /* siempre negro */
+    border: 1px solid #ccc !important;
+    border-radius: 50%;
+    width: 64px;
+    height: 64px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1001;
+    transition: transform 0.2s;
+}
+
+.boton-accesibilidad:hover {
+    transform: scale(1.1);
+}
+
 body {
     transition: background-color 0.3s, color 0.3s;
 }
@@ -156,6 +179,30 @@ body.dark-mode {
     background-color: #121212;
     color: #f5f5f5;
 }
+
+body.light-mode button{
+    background-color: #f0f0f0;
+    color: #000;
+    border: 1px solid #ccc;
+}
+
+body.dark-mode button {
+    background-color: #333;
+    color: #fff;
+    border: 1px solid #555;
+}
+
+/* Modo oscuro: svg dentro de botones */
+body.dark-mode button svg {
+fill: white;
+stroke: white;
+}
+
+/* Modo claro: svg dentro de botones */
+body.light-mode button svg {
+fill: black;
+stroke: black;
+}  
 
 /* Estilos por defecto (modo claro) */
 body.light-mode .modal-content {
@@ -184,6 +231,14 @@ body.light-mode .modal-content button {
     border: 1px solid #ccc;
 }
 
+body.dark-mode .modal-content p {
+    color: #fff;
+}
+  
+body.light-mode .modal-content p {
+    color: #000;
+}
+
 /* Modo claro para el header */
 body.light-mode .main-header {
     background-color: #1e3a8a; /* azul oscuro */
@@ -195,7 +250,25 @@ body.dark-mode .main-header {
     background-color: #141f38; /* azul casi negro */
     color: #f0f0f0;
 }
-  
+
+body.light-mode .map-header button{
+    background-color: #f0f0f0;
+    color: #000;
+    border: 1px solid #ccc;
+}
+
+body.dark-mode .map-header button {
+    background-color: #1f2937;
+    color: #fff;
+    border: 1px solid #555;
+}
+
+body.dark-mode .map-header input {
+    background-color: #1f2937;
+    color: #fff;
+    border: 1px solid #555;
+}
+
 /* Footer - Modo claro */
 body.light-mode .main-footer {
     background-color: #f3f4f6; /* gris claro */

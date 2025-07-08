@@ -176,16 +176,20 @@
   puntosInteres.forEach((punto) => {
     const popup = new mapboxgl.Popup({ offset: 25 })
       .setHTML(`
+        <div class="modal-content">
         <h3 class="font-bold text-lg mb-2">${punto.nombre}</h3>
         <button 
           class="btn-mas-info bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-colors"
         >
           Ver más información
         </button>
+        </div>
       `);
 
+     const modo = localStorage.getItem('modo-tema');
+
     const marker = new mapboxgl.Marker({
-      color: '#FF0000',
+      color: modo == 'dark-mode'? '#1e1e1e':'#FF0000',
       scale: 0.8
     })
     .setLngLat(punto.coordenadas)
@@ -278,109 +282,109 @@
 
     // Función para anunciar cambios a lectores de pantalla
     function announceToScreenReader(message) {
-    const announcement = document.createElement('div');
-    announcement.setAttribute('aria-live', 'polite');
-    announcement.setAttribute('aria-atomic', 'true');
-    announcement.setAttribute('class', 'sr-only');
-    announcement.textContent = message;
-    document.body.appendChild(announcement);
-    setTimeout(() => announcement.remove(), 1000);
-    }
+      const announcement = document.createElement('div');
+      announcement.setAttribute('aria-live', 'polite');
+      announcement.setAttribute('aria-atomic', 'true');
+      announcement.setAttribute('class', 'sr-only');
+      announcement.textContent = message;
+      document.body.appendChild(announcement);
+        setTimeout(() => announcement.remove(), 1000);
+      }
 
-    searchForm.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const query = searchInput.value.trim();
-    
-    if (!query || query.length == 0) {
-        announceToScreenReader('Por favor, ingresa un lugar para buscar');
-        return;
-    }
+      searchForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const query = searchInput.value.trim();
+      
+      if (!query || query.length == 0) {
+          announceToScreenReader('Por favor, ingresa un lugar para buscar');
+          return;
+      }
 
-    // Busca en los nombres de los puntos de interés
-    const resultadoLocal = puntosInteres.find(p => 
-        p.nombre.toLowerCase().includes(query.toLowerCase()) || p.lugar.toLowerCase().includes(query.toLowerCase())
-    );
+      // Busca en los nombres de los puntos de interés
+      const resultadoLocal = puntosInteres.find(p => 
+          p.nombre.toLowerCase().includes(query.toLowerCase()) || p.lugar.toLowerCase().includes(query.toLowerCase())
+      );
 
-    if (resultadoLocal) {
-        const [lng, lat] = resultadoLocal.coordenadas;
-        map.flyTo({
-        center: [lng, lat],
-        zoom: 14,
-        essential: true
-        });
+      if (resultadoLocal) {
+          const [lng, lat] = resultadoLocal.coordenadas;
+          map.flyTo({
+          center: [lng, lat],
+          zoom: 14,
+          essential: true
+          });
 
-        announceToScreenReader(`Ubicación encontrada en el mapa: ${resultadoLocal.nombre}`);
-    } else {
-        announceToScreenReader('No se encontraron resultados para la búsqueda');
-    }
+          announceToScreenReader(`Ubicación encontrada en el mapa: ${resultadoLocal.nombre}`);
+      } else {
+          announceToScreenReader('No se encontraron resultados para la búsqueda');
+      }
     });
 
     // Manejar el foco del teclado
     mapContainer.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter' || e.key === ' ') {
-        e.preventDefault();
-        mapContainer.focus();
-    }
+      if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          mapContainer.focus();
+      }
     });
 
     // Funciones para el modal de accesibilidad
     function abrirModalAccesibilidad() {
-    const modal = document.getElementById('modalAccesibilidad');
-    modal.style.display = 'flex';
-    document.body.style.overflow = 'hidden';
+      const modal = document.getElementById('modalAccesibilidad');
+      modal.style.display = 'flex';
+      document.body.style.overflow = 'hidden';
     }
 
     function cerrarModalAccesibilidad() {
-    const modal = document.getElementById('modalAccesibilidad');
-    modal.style.display = 'none';
-    document.body.style.overflow = 'auto';
+      const modal = document.getElementById('modalAccesibilidad');
+      modal.style.display = 'none';
+      document.body.style.overflow = 'auto';
     }
 
     // Funciones para el modal de configuración
     function abrirModalConfiguracion() {
-    const modal = document.getElementById('modalConfiguracion');
-    modal.style.display = 'flex';
-    document.body.style.overflow = 'hidden';
+      const modal = document.getElementById('modalConfiguracion');
+      modal.style.display = 'flex';
+      document.body.style.overflow = 'hidden';
     }
 
     function cerrarModalConfiguracion() {
-    const modal = document.getElementById('modalConfiguracion');
-    modal.style.display = 'none';
-    document.body.style.overflow = 'auto';
+      const modal = document.getElementById('modalConfiguracion');
+      modal.style.display = 'none';
+      document.body.style.overflow = 'auto';
     }
 
     // Funciones de accesibilidad
     function toggleAltoContraste(checkbox) {
-    document.body.classList.toggle('alto-contraste', checkbox.checked);
+      document.body.classList.toggle('alto-contraste', checkbox.checked);
     }
 
     function toggleLectorPantalla(checkbox) {
-    // Implementar lógica del lector de pantalla
-    console.log('Modo lector de pantalla:', checkbox.checked);
+      // Implementar lógica del lector de pantalla
+      console.log('Modo lector de pantalla:', checkbox.checked);
     }
 
     function cambiarTamañoTexto(tamaño) {
-    document.body.style.fontSize = tamaño + 'px';
+      document.body.style.fontSize = tamaño + 'px';
     }
 
     // Funciones de configuración
     function cambiarEstiloMapa(estilo) {
-    map.setStyle(estilo);
+      map.setStyle(estilo);
     }
 
     function cambiarIdioma(idioma) {
-    // Implementar cambio de idioma
-    console.log('Cambiando idioma a:', idioma);
+      // Implementar cambio de idioma
+      console.log('Cambiando idioma a:', idioma);
     }
 
     // Cerrar modales al hacer clic fuera
     window.onclick = function(event) {
-    const modals = document.getElementsByClassName('modal');
-    for (let modal of modals) {
+      const modals = document.getElementsByClassName('modal');
+      console.log(modals);
+      for (let modal of modals) {
         if (event.target === modal) {
-        modal.style.display = 'none';
-        document.body.style.overflow = 'auto';
+          modal.style.display = 'none';
+          document.body.style.overflow = 'auto';
         }
+      }
     }
-    
-}
