@@ -93,6 +93,11 @@
     zoom: 4
     });
 
+
+  const focusableSelectors = 'button, [href],p, input, select, textarea, [tabindex]:not([tabindex="-1"])';
+  let focusableElements = [];
+  let firstFocusable, lastFocusable;
+
     // Agregar controles de navegación
     map.addControl(new mapboxgl.NavigationControl());
 
@@ -120,54 +125,131 @@
     modalImage.src = imagen;
     modalImage.alt = altImagen;
     modal.style.display = 'flex';
+    
+    modal.setAttribute('aria-hidden', 'false');
+    focusableElements = modal.querySelectorAll(focusableSelectors);
+    firstFocusable = focusableElements[0];
+    lastFocusable = focusableElements[focusableElements.length - 1];
+
+    firstFocusable.focus();
+    document.addEventListener('keydown', trapTabKey);
+    document.addEventListener('keydown', handleEsc);
+
     document.body.style.overflow = 'hidden';
+    
     }
 
     // Función para cerrar el modal
     function cerrarModal() {
     modal.style.display = 'none';
     document.body.style.overflow = 'auto';
+    modal.setAttribute('aria-hidden', 'true');
+    document.removeEventListener('keydown', trapTabKey);
+    document.removeEventListener('keydown', handleEsc);
+    }
+
+    function trapTabKey(e) {
+        if (e.key === 'Tab') {
+        if (e.shiftKey) {
+            if (document.activeElement === firstFocusable) {
+            e.preventDefault();
+            lastFocusable.focus();
+            }
+        } else {
+            if (document.activeElement === lastFocusable) {
+            e.preventDefault();
+            firstFocusable.focus();
+            }
+        }
+        }
+    }
+
+    function handleEsc(e) {
+        if (e.key === 'Escape') {
+        cerrarModal();
+        }
     }
 
     // Agregar puntos al mapa
-    function agregarPuntos() {
-    console.log('Agregando puntos al mapa...');
-    console.log('Número de puntos a agregar:', puntosInteres.length);
+   function agregarPuntos() {
+  puntosInteres.forEach((punto) => {
+    const popup = new mapboxgl.Popup({ offset: 25 })
+      .setHTML(`
+        <h3 class="font-bold text-lg mb-2">${punto.nombre}</h3>
+        <button 
+          class="btn-mas-info bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-colors"
+        >
+          Ver más información
+        </button>
+      `);
 
-    puntosInteres.forEach((punto, index) => {
-        console.log(`Creando marcador ${index + 1} para:`, punto.nombre);
-        console.log('Coordenadas:', punto.coordenadas);
-        
-        const el = createCustomMarker();
-        el.classList.add(punto.tipo);
-        
-        try {
-        const marker = new mapboxgl.Marker({
-            color: '#FF0000', // Color del marcador
-            // element: el,
-            scale: 0.8
-        })
-            .setLngLat(punto.coordenadas)
-            .setPopup(
-            new mapboxgl.Popup({ offset: 25 })
-                .setHTML(`
-                <h3 class="font-bold text-lg mb-2">${punto.nombre}</h3>
-                <button 
-                    onclick="abrirModal('${punto.nombre}','${punto.lugar}','${punto.fecha}','${punto.descripcion}', '${punto.imagen}','${punto.altImagen}')"
-                    class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-colors"
-                >
-                    Ver más información
-                </button>
-                `)
-            );
-        
-        marker.addTo(map);
-        console.log('Marcador agregado exitosamente:', punto.nombre);
-        } catch (error) {
-        console.error('Error al crear el marcador:', error);
-        }
+    const marker = new mapboxgl.Marker({
+      color: '#FF0000',
+      scale: 0.8
+    })
+    .setLngLat(punto.coordenadas)
+    .setPopup(popup)
+    .addTo(map);
+
+    // Hacer foco y abrir popup con teclado
+    const markerElement = marker.getElement();
+    markerElement.setAttribute('tabindex', '0');
+    markerElement.setAttribute('role', 'button');
+    markerElement.setAttribute('aria-label', `Abrir información de ${punto.nombre}`);
+
+    markerElement.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        marker.togglePopup();
+      }
     });
-    }
+
+    // Cuando popup abre, agregar listeners para cerrar con ESC y abrir modal desde botón
+    marker.getPopup().on('open', () => {
+      const popupEl = marker.getPopup().getElement();
+      const btn = popupEl.querySelector('.btn-mas-info');
+
+       setTimeout(() => {
+        const popupEl = marker.getPopup().getElement();
+        const btn = popupEl.querySelector('.btn-mas-info');
+        if (btn) {
+          btn.focus();
+
+          // Abrir modal con Enter o click
+          btn.onclick = () => abrirModal(
+            punto.nombre,
+            punto.lugar,
+            punto.fecha,
+            punto.descripcion,
+            punto.imagen,
+            punto.altImagen
+          );
+          btn.onkeydown = (e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              e.preventDefault();
+              abrirModal(
+                punto.nombre,
+                punto.lugar,
+                punto.fecha,
+                punto.descripcion,
+                punto.imagen,
+                punto.altImagen
+              );
+            }
+          };
+        }
+      }, 0);
+
+      function onKeyDown(event) {
+        if (event.key === 'Escape') {
+          marker.getPopup().remove();
+          document.removeEventListener('keydown', onKeyDown);
+        }
+      }
+      document.addEventListener('keydown', onKeyDown);
+    });
+  });
+}
 
     // Cerrar modal al hacer clic fuera
     document.addEventListener('DOMContentLoaded', function() {
