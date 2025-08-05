@@ -68,7 +68,6 @@
       </form>
     </header>
 
-    <!-- Contenedor del mapa con rol y label -->
     <main>
       <div
         id="map"
@@ -97,47 +96,15 @@
       <div class="modal-content">
         <button onclick="cerrarModal()" class="absolute top-2 right-2 text-gray-500 hover:text-gray-700" aria-label="Cerrar modal">✕</button>
         <h2 id="modalTitle" class="text-2xl mb-4" aria-label="Titulo de la historia" tabindex="0"></h2> 
-        <h4 id="modalFecha" class="text-lg text-gray-600 mb-2"></h4>
+        <h4 id="modalFecha" class="text-lg texto-secundario mb-2"></h4>
         <img id="modalImage" class="w-full h-48 object-cover rounded-lg mb-4" alt="">
         <p id="modalDescription" aria-label="Descripcion de la historia" class="text-gray-700 pb-3"  tabindex="0"></p>
 
-         <div class="absolute bottom-0 left-0 w-full">
-         <div class="bandera-celeste">
-        </div>
+        <div class="bandera-celeste"></div>
         <div class="bandera-blanca">
+          <div class="sol"></div>
         </div>
-        <div class="bandera-celeste">
-        </div>
-        </div>
-        
-      </div>
-    </div>
-
-    <!-- Modal de accesibilidad -->
-    <div id="modalAccesibilidad" class="modal" role="dialog" aria-labelledby="modalAccesibilidadTitle">
-      <div class="modal-content">
-        <button onclick="cerrarModalAccesibilidad()" class="absolute top-2 right-2 text-gray-500 hover:text-gray-700" aria-label="Cerrar modal">✕</button>
-        <h2 id="modalAccesibilidadTitle" class="text-2xl font-bold mb-4">Configuración de Accesibilidad</h2>
-        <div class="space-y-4">
-          <div>
-            <label class="flex items-center space-x-2">
-              <input type="checkbox" class="form-checkbox" onchange="toggleAltoContraste(this)">
-              <span>Alto contraste</span>
-            </label>
-          </div>
-          <div>
-            <label class="flex items-center space-x-2">
-              <input type="checkbox" class="form-checkbox" onchange="toggleLectorPantalla(this)">
-              <span>Modo lector de pantalla</span>
-            </label>
-          </div>
-          <div>
-            <label class="flex items-center space-x-2">
-              <input type="range" min="12" max="24" value="16" class="w-full" onchange="cambiarTamañoTexto(this.value)">
-              <span>Tamaño del texto</span>
-            </label>
-          </div>
-        </div>
+        <div class="bandera-celeste"></div>
       </div>
     </div>
 
@@ -165,12 +132,64 @@
         </div>
       </div>
     </div>
+    <div>
+        <button onclick="abrirModalAccesibilidad()" class="boton-accesibilidad" aria-label="Configuración de accesibilidad">
+            <img src="./public/icono-accesibilidad.png" alt="Configuración de accesibilidad" width="40" height="40" />
+        </button>                  
+    </div>
+    <div id="modalAccesibilidad" class="modal" role="dialog" aria-labelledby="modalAccesibilidadTitle">
+        <div class="modal-content">
+            <button onclick="cerrarModalAccesibilidad()" class="absolute top-2 right-2 text-gray-500 hover:text-gray-700" aria-label="Cerrar modal">✕</button>
+            <h2 id="modalAccesibilidadTitle" class="text-2xl font-bold mb-4">Configuración de Accesibilidad</h2>
+            <div class="space-y-4">
+                <div class="switch-theme">
+                    <label>
+                        <input type="checkbox" id="toggle-theme" />
+                        <span class="slider"></span>
+                    </label>
+                    <span id="theme-label" class="theme-label">🌙 Modo oscuro</span>
+                </div>
+                <div>
+                    <label class="flex items-center space-x-2">
+                        <input type="range" min="12" max="24" value="16" class="w-full" onchange="cambiarTamañoTexto(this.value)">
+                        <span>Tamaño del texto</span>
+                    </label>
+                </div>
+          </div>
+        </div>
+      </div>
+
     <script>
+      const toggle = document.getElementById('toggle-theme');
+      const body = document.body;
+      const themeLabel = document.getElementById('theme-label');
+      
+      // Función para actualizar el texto del toggle
+      function actualizarTextoToggle(modoOscuro) {
+          if (modoOscuro) {
+              toggle.checked = true;
+              themeLabel.textContent = '🌞 Modo claro';
+          } else {
+              toggle.checked = false;
+              themeLabel.textContent = '🌙 Modo oscuro';
+          }
+      }
+      
+      // Al cambiar el toggle
+      toggle.addEventListener('change', () => {
+          const modoOscuro = toggle.checked;
+          body.classList.toggle('dark-mode', modoOscuro);
+          body.classList.toggle('light-mode', !modoOscuro);
+          localStorage.setItem('modo-tema', modoOscuro ? 'dark' : 'light');
+          actualizarTextoToggle(modoOscuro);
+      });
+
       function aplicarModoTemaDesdeStorage() {
         const temaGuardado = localStorage.getItem('modo-tema');
         const modoOscuro = temaGuardado === 'dark';
         document.body.classList.toggle('dark-mode', modoOscuro);
         document.body.classList.toggle('light-mode', !modoOscuro);
+        actualizarTextoToggle(modoOscuro);
       }
       window.addEventListener('DOMContentLoaded', aplicarModoTemaDesdeStorage);
     </script>

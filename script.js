@@ -83,6 +83,26 @@
         tipo: "historico",
         imagen: "./public/op-keyhole.jpg",
         altImagen: "Estación Cientifica Corbeta Uruguay en la Isla Morrell, Islas Sandwich del Sur."
+    },
+    {
+      nombre: "Batalla de Pradera del Ganso",
+      lugar: "Istmo de Darwin, Isla Soledad",
+      fecha: "1982-05-27 - 1982-05-29",
+      coordenadas: [-58.96,-51.82],
+      descripcion: "La Batalla de Pradera del Ganso fue el primer gran enfrentamiento terrestre de la Guerra de las Malvinas. La batalla se libró en el istmo de Darwin, que une Lafonia con la porción norte de la Isla Soledad. La batalla comenzó el 27 de mayo de 1982, cuando las fuerzas británicas lanzaron un ataque sorpresa contra las posiciones argentinas en Pradera del Ganso. Las fuerzas británicas lograron avanzar y capturar la posición, imponiéndose sobre una fuerza argentina de 600 hombres.",
+      tipo: "historico",
+      imagen: "./public/darwin_soldados.jpg",
+      altImagen: "Soldados argentinos en Darwin."
+    },
+    {
+      nombre: "La artillería argentina que le plantó batalla a la poderosa Fuerza Aérea británica",
+      lugar: "Puerto Argentino",
+      fecha: "1982-05-01",
+      coordenadas: [-57.86, -51.68],
+      descripcion: "En Malvinas, desde fines de abril de 1982 operaba un Sistema Conjunto de Defensa Aérea integrado por armas y radares, que dirigió la mayoría de los ataques de la Fuerza Aérea Sur con base en el continente. Esto proporcionó ayudas de aeronavegación, de búsqueda y rescate. Fue significativo el aporte del mayor de la Fuerza Aérea Hugo Maiorano, y del capitán de corbeta Héctor Silva. El grupo también lo integró el teniente coronel Héctor L. Arias, quien además condujo los modernos sistemas de armas- misiles y cañones- de la Artillería Antiaérea del Ejército. Excepto una sección de cañones que operó en Darwin-Pradera del Ganso a órdenes del subteniente Claudio Braghini.",
+      tipo: "historico",
+      imagen: "./public/soldados_auto.avif",
+      altImagen: "Soldados argentinos en las islas, junto a un vehiculo de guerra."
     }
     ];
 
@@ -119,34 +139,37 @@
     }
 
     // Función para abrir el modal
-    function abrirModal(nombre, lugar, fecha, descripcion, imagen, altImagen) {
-    modalTitle.innerHTML = `<p><b>${nombre}</b> - <span class="text-gray-600">${lugar}</span></p>`;
-    modalFecha.textContent = fecha ? `Fecha: ${fecha}` : 'Fecha no disponible';
-    modalDescription.textContent = descripcion;
-    modalImage.src = imagen;
-    modalImage.alt = altImagen;
-    modal.style.display = 'flex';
-    
-    modal.setAttribute('aria-hidden', 'false');
-    focusableElements = modal.querySelectorAll(focusableSelectors);
-    firstFocusable = focusableElements[0];
-    lastFocusable = focusableElements[focusableElements.length - 1];
+    function abrirModal(nombre, lugar, fecha, descripcion, imagen, altImagen, modoOscuro) {
+      if(modoOscuro)
+        modalTitle.innerHTML = `<p><b>${nombre}</b> - <span class="text-white-600">${lugar}</span></p>`;
+      else
+        modalTitle.innerHTML = `<p><b>${nombre}</b> - <span class="text-gray-600">${lugar}</span></p>`;
+      modalFecha.textContent = fecha ? `Fecha: ${fecha}` : 'Fecha no disponible';
+      modalDescription.textContent = descripcion;
+      modalImage.src = imagen;
+      modalImage.alt = altImagen;
+      modal.style.display = 'flex';
+      
+      modal.setAttribute('aria-hidden', 'false');
+      focusableElements = modal.querySelectorAll(focusableSelectors);
+      firstFocusable = focusableElements[0];
+      lastFocusable = focusableElements[focusableElements.length - 1];
 
-    firstFocusable.focus();
-    document.addEventListener('keydown', trapTabKey);
-    document.addEventListener('keydown', handleEsc);
+      firstFocusable.focus();
+      document.addEventListener('keydown', trapTabKey);
+      document.addEventListener('keydown', handleEsc);
 
-    document.body.style.overflow = 'hidden';
-    
+      document.body.style.overflow = 'hidden';
+      
     }
 
     // Función para cerrar el modal
     function cerrarModal() {
-    modal.style.display = 'none';
-    document.body.style.overflow = 'auto';
-    modal.setAttribute('aria-hidden', 'true');
-    document.removeEventListener('keydown', trapTabKey);
-    document.removeEventListener('keydown', handleEsc);
+      modal.style.display = 'none';
+      document.body.style.overflow = 'auto';
+      modal.setAttribute('aria-hidden', 'true');
+      document.removeEventListener('keydown', trapTabKey);
+      document.removeEventListener('keydown', handleEsc);
     }
 
     function trapTabKey(e) {
@@ -172,89 +195,91 @@
     }
 
     // Agregar puntos al mapa
-   function agregarPuntos() {
-  puntosInteres.forEach((punto) => {
-    const popup = new mapboxgl.Popup({ offset: 25 })
-      .setHTML(`
-        <div class="modal-content">
-        <h3 class="font-bold text-lg mb-2">${punto.nombre}</h3>
-        <button 
-          class="btn-mas-info bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-colors"
-        >
-          Ver más información
-        </button>
-        </div>
-      `);
+    function agregarPuntos() {
+      puntosInteres.forEach((punto) => {
+        const popup = new mapboxgl.Popup({ offset: 25 })
+          .setHTML(`
+            <div class="modal-open">
+            <h3 class="font-bold text-lg mb-2">${punto.nombre}</h3>
+            <button 
+              class="btn-mas-info bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-colors"
+            >
+              Ver más información
+            </button>
+            </div>
+          `);
 
-     const modo = localStorage.getItem('modo-tema');
+        const modo = localStorage.getItem('modo-tema');
 
-    const marker = new mapboxgl.Marker({
-      color: modo == 'dark-mode'? '#1e1e1e':'#FF0000',
-      scale: 0.8
-    })
-    .setLngLat(punto.coordenadas)
-    .setPopup(popup)
-    .addTo(map);
+        const marker = new mapboxgl.Marker({
+          color: modo == 'dark-mode'? '#1e1e1e':'#FF0000',
+          scale: 0.8
+        })
+        .setLngLat(punto.coordenadas)
+        .setPopup(popup)
+        .addTo(map);
 
-    // Hacer foco y abrir popup con teclado
-    const markerElement = marker.getElement();
-    markerElement.setAttribute('tabindex', '0');
-    markerElement.setAttribute('role', 'button');
-    markerElement.setAttribute('aria-label', `Abrir información de ${punto.nombre}`);
+        // Hacer foco y abrir popup con teclado
+        const markerElement = marker.getElement();
+        markerElement.setAttribute('tabindex', '0');
+        markerElement.setAttribute('role', 'button');
+        markerElement.setAttribute('aria-label', `Abrir información de ${punto.nombre}`);
 
-    markerElement.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter' || e.key === ' ') {
-        e.preventDefault();
-        marker.togglePopup();
-      }
-    });
+        markerElement.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            marker.togglePopup();
+          }
+        });
 
-    // Cuando popup abre, agregar listeners para cerrar con ESC y abrir modal desde botón
-    marker.getPopup().on('open', () => {
-      const popupEl = marker.getPopup().getElement();
-      const btn = popupEl.querySelector('.btn-mas-info');
+        // Cuando popup abre, agregar listeners para cerrar con ESC y abrir modal desde botón
+        marker.getPopup().on('open', () => {
+          const popupEl = marker.getPopup().getElement();
+          const btn = popupEl.querySelector('.btn-mas-info');
 
-       setTimeout(() => {
-        const popupEl = marker.getPopup().getElement();
-        const btn = popupEl.querySelector('.btn-mas-info');
-        if (btn) {
-          btn.focus();
+          setTimeout(() => {
+            const popupEl = marker.getPopup().getElement();
+            const btn = popupEl.querySelector('.btn-mas-info');
+            if (btn) {
+              btn.focus();
 
-          // Abrir modal con Enter o click
-          btn.onclick = () => abrirModal(
-            punto.nombre,
-            punto.lugar,
-            punto.fecha,
-            punto.descripcion,
-            punto.imagen,
-            punto.altImagen
-          );
-          btn.onkeydown = (e) => {
-            if (e.key === 'Enter' || e.key === ' ') {
-              e.preventDefault();
-              abrirModal(
+              // Abrir modal con Enter o click
+              btn.onclick = () => abrirModal(
                 punto.nombre,
                 punto.lugar,
                 punto.fecha,
                 punto.descripcion,
                 punto.imagen,
-                punto.altImagen
+                punto.altImagen,
+                localStorage.getItem('modo-tema') === 'dark' ? true : false
               );
+              btn.onkeydown = (e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault();
+                  abrirModal(
+                    punto.nombre,
+                    punto.lugar,
+                    punto.fecha,
+                    punto.descripcion,
+                    punto.imagen,
+                    punto.altImagen,
+                    localStorage.getItem('modo-tema') === 'dark' ? true : false
+                  );
+                }
+              };
             }
-          };
-        }
-      }, 0);
+          }, 0);
 
-      function onKeyDown(event) {
-        if (event.key === 'Escape') {
-          marker.getPopup().remove();
-          document.removeEventListener('keydown', onKeyDown);
-        }
-      }
-      document.addEventListener('keydown', onKeyDown);
-    });
-  });
-}
+          function onKeyDown(event) {
+            if (event.key === 'Escape') {
+              marker.getPopup().remove();
+              document.removeEventListener('keydown', onKeyDown);
+            }
+          }
+          document.addEventListener('keydown', onKeyDown);
+        });
+      });
+    }
 
     // Cerrar modal al hacer clic fuera
     document.addEventListener('DOMContentLoaded', function() {
