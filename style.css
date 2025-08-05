@@ -347,3 +347,20 @@ input:checked + .slider::before {
 body.dark-mode .theme-label {
     color: #fff;
 }
+
+body.dark-mode select {
+    background-color: #1f1f1f; /* fondo oscuro */
+    color: #ffffff;           /* texto claro */
+    border: 1px solid #444;   /* borde más suave */
+}
+  
+body.dark-mode select option {
+    background-color: #1f1f1f;
+    color: #ffffff;
+}
+
+body.dark-mode select:focus {
+    outline: none;
+    border-color: #666;
+    box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.2);
+}

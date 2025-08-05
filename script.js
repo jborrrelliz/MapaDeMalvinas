@@ -95,9 +95,9 @@
     });
 
 
-  const focusableSelectors = 'button, [href],p, input, select, textarea, [tabindex]:not([tabindex="-1"])';
-  let focusableElements = [];
-  let firstFocusable, lastFocusable;
+    const focusableSelectors = 'button, [href],p, input, select, textarea, [tabindex]:not([tabindex="-1"])';
+    let focusableElements = [];
+    let firstFocusable, lastFocusable;
 
     // Agregar controles de navegación
     map.addControl(new mapboxgl.NavigationControl());
